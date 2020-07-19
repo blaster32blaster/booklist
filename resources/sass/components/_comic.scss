@@ -1,0 +1,26 @@
+.comic-body {
+    img {
+        max-width: 100%;
+    }
+}
+.comic-body:hover {
+    cursor: pointer;
+}
+.comic-header:hover {
+    cursor: pointer;
+}
+@media (max-width: 1000px) {
+    .main-comic-wrapper {
+        width:80%;
+        margin-bottom: 3rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+@media (min-width: 1000px) {
+    .main-comic-wrapper {
+        width:30%;
+        margin-bottom: 3rem;
+    }
+}
+

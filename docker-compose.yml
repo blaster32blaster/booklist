@@ -1,0 +1,79 @@
+#This file is inside a folder named 'dock' at the root of my laravel project
+version: "3.2"
+services:
+    #PHP with apache
+    book_container:
+      #image will be built by processing the Dockerfile in this path
+      build: .
+      container_name: book_cont
+      command:
+        sh ./dock-files/startup.sh
+      environment:
+        XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9000 remote_enable=1
+      links:
+        - redis
+        - db
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.book_container.rule=Host(`book.localhost`)"
+        - "traefik.http.routers.book_container.entrypoints=web"
+        - "traefik.port=80"
+      #map host folders (relative to this file) to service
+      volumes:
+        # - ./public/:/var/www/html
+        - ./:/var/www/html
+      #mark the db services as a dependency
+      depends_on:
+        - redis
+        - db
+      restart:
+        always
+      networks:
+        - traefik_webgateway
+        - internal
+      ports:
+        - "8089:80"
+        - 6002:6001
+    #mysql db
+    db:
+      image: mysql:5.7.20
+      # build: ./dock-files/MySqlDB
+      container_name: mysql-database
+      restart: always
+      #storing the mysql folder outside allows persistence
+      volumes:
+        - db_data:/var/lib/mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: mysql_root_password1
+        MYSQL_USER: user
+        MYSQL_PASSWORD: mysql_user_password1
+        MYSQL_DATABASE: mysql
+      labels:
+        - "traefik.enable=false"
+      networks:
+        internal:
+          aliases:
+            - mysql
+      ports:
+      - "4315:3306"
+    #redis
+    redis:
+      command: redis-server --requirepass secret
+      image: redis
+      container_name: redis
+      labels:
+        - "traefik.enable=false"
+      networks:
+        internal:
+          aliases:
+            - redis
+      volumes:
+        - "redis_data:/data"
+volumes:
+    db_data:
+    redis_data:
+networks:
+  traefik_webgateway:
+    external: true
+  internal:
+    external: true

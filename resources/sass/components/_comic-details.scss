@@ -1,0 +1,11 @@
+.comic-details-body {
+    display: flex;
+    justify-content: center;
+    img {
+        max-width: 100%;
+        max-height: 600px;
+    }
+}
+.comic-details-body-description {
+    margin: 1rem;
+}

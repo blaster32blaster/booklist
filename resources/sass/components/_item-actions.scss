@@ -1,0 +1,16 @@
+.item-actions-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.item-actions-content .btn-remove {
+    background-color: orangered;
+    margin-top: .3rem;
+    margin-bottom: .3rem;
+}
+
+.item-actions-content .btn-add {
+    background-color: #f5bf42;
+    margin-top: .3rem;
+    margin-bottom: .3rem;
+}
