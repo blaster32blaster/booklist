@@ -3,8 +3,18 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div :id="'actions-'+comic.id+'-wrapper'" class="item-actions-content">
-                    <button type="button" class="btn btn-primary btn-add">Add to comic list</button>
-                    <button type="button" class="btn btn-primary btn-remove">Remove from comic list</button>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-add"
+                    >
+                        Add to comic list
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-remove"
+                    >
+                        Remove from comic list
+                    </button>
                 </div>
             </div>
         </div>

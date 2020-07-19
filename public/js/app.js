@@ -2107,6 +2107,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     comic: {
@@ -38079,7 +38089,11 @@ var render = function() {
                 staticClass: "btn btn-primary btn-add",
                 attrs: { type: "button" }
               },
-              [_vm._v("Add to comic list")]
+              [
+                _vm._v(
+                  "\n                    Add to comic list\n                "
+                )
+              ]
             ),
             _vm._v(" "),
             _c(
@@ -38088,7 +38102,11 @@ var render = function() {
                 staticClass: "btn btn-primary btn-remove",
                 attrs: { type: "button" }
               },
-              [_vm._v("Remove from comic list")]
+              [
+                _vm._v(
+                  "\n                    Remove from comic list\n                "
+                )
+              ]
             )
           ]
         )
