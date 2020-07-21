@@ -10,17 +10,41 @@
                             Available Comics
                         </div>
                         <div>
-                            <button type="button" class="btn btn-primary">Manage My List</button>
+                        </div>
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                @click="sortList"
+                            >
+                                Sort By Title
+                            </button>
+                        <div>
+                            <button
+                                v-show="!myList"
+                                type="button"
+                                class="btn btn-primary"
+                                @click="switchToMyList"
+                            >
+                                Manage My List
+                            </button>
+                            <button
+                                v-show="myList"
+                                type="button"
+                                class="btn btn-primary"
+                                @click="switchToMainList"
+                            >
+                                Back to Main List
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <!-- <div class="card-body-main col-md-4"> -->
                         <div class="card-body-main">
                             <comic
                                 v-for="(comic, index) in comics"
                                 v-bind:key="index"
                                 class="comic-wrapper"
                                 :comic="comic"
+                                :canadd="canAdd(comic)"
                             >
                             </comic>
                         </div>
@@ -44,15 +68,14 @@
             comic
         },
         props: {
-            num_records: {
-                default: 0,
-                type: Number
-            }
         },
         data() {
             return {
                 messages: [],
+                selectedComics: [],
                 comics: [],
+                myList: false,
+                sort: 'asc',
             }
         },
         methods: {
@@ -64,10 +87,38 @@
                     .catch(error => {
                         console.log('fetching books error')
                     });
+            },
+            canAdd (comic) {
+                return !this.$store.state.comics.comics.includes(comic)
+            },
+            switchToMyList () {
+                this.myList = true;
+                this.updateGlobalState('mainList', this.comics);
+                this.comics = this.$store.state.comics.comics
+            },
+            switchToMainList () {
+                this.myList = false;
+                this.comics = this.$store.state.comics.mainList
+            },
+            updateGlobalState (key, value) {
+                this.$store.commit({
+                    type: 'comics/update',
+                    item: key,
+                    value: value
+                })
+            },
+            sortList () {
+                this.comics =  _.orderBy(this.comics, 'title', this.sort);
+                if (this.sort === 'desc') {
+                    this.sort = 'asc';
+                } else {
+                    this.sort = 'desc';
+                }
             }
         },
         mounted() {
             this.fetchBaseBookData();
+            this.selectedComics = this.$store.state.comics
         }
     }
 </script>

@@ -1,43 +1,44 @@
 <template>
-    <!-- <div class="container main-comic-wrapper"> -->
     <div class="main-comic-wrapper">
-        <!-- <div class="row justify-content-center"> -->
-            <div class="col-md-12">
-                <div class="card" :id="'list-'+comic.id">
-                    <div
-                        @click="getComicDetails"
-                        class="card-header comic-header"
-                        :id="'list-'+comic.id+'-header'"
-                    >
-                        {{ comic.title }}
-                    </div>
-                    <div
-                        @click="getComicDetails"
-                        class="card-body comic-body"
-                        :id="'list-'+comic.id+'-body'"
-                    >
-                        <img :src="''+ comic.thumbnail.path + ''+ '.' + comic.thumbnail.extension" />
-                    </div>
-                    <div class="card-footer list-actions-wrapper" :id="'list-'+comic.id+'-footer'">
-                        <itemActions
-                            :comic="comic"
-                        >
-                        </itemActions>
-                    </div>
-                </div>
-                <modal
-                    :name="''+ comic.id+'' + '-modal'"
-                    :width="modalWidth"
-                    :height="modalHeight"
-                    :adaptive="true"
+        <div class="col-md-12">
+            <div class="card" :id="'list-'+comic.id">
+                <div
+                    @click="getComicDetails"
+                    class="card-header comic-header"
+                    :id="'list-'+comic.id+'-header'"
                 >
-                    <comicDetails
+                    {{ comic.title }}
+                </div>
+                <div
+                    @click="getComicDetails"
+                    class="card-body comic-body"
+                    :id="'list-'+comic.id+'-body'"
+                >
+                    <img :src="''+ comic.thumbnail.path + ''+ '.' + comic.thumbnail.extension" />
+                </div>
+                <div class="card-footer list-actions-wrapper" :id="'list-'+comic.id+'-footer'">
+                    <itemActions
                         :comic="comic"
+                        :canadd="canadd"
+                        @itemAdded="itemAdded"
                     >
-                    </comicDetails>
-                </modal>
+                    </itemActions>
+                </div>
             </div>
-        <!-- </div> -->
+            <modal
+                :name="''+ comic.id+'' + '-modal'"
+                :width="modalWidth"
+                :height="modalHeight"
+                :adaptive="true"
+            >
+                <comicDetails
+                    :comic="comic"
+                    :canadd="canadd"
+                    @itemAdded="itemAdded"
+                >
+                </comicDetails>
+            </modal>
+        </div>
     </div>
 </template>
 
@@ -53,6 +54,10 @@
             comic: {
                 default: function () { return {} },
                 type: Object
+            },
+            canadd: {
+                default: false,
+                type: Boolean
             }
         },
         data() {
@@ -64,19 +69,12 @@
         methods: {
             getComicDetails () {
                 this.$modal.show(''+ this.comic.id+'' + '-modal');
+            },
+            itemAdded () {
+                this.$emit('itemAdded')
             }
-            // fetchBaseBookData () {
-            //     axios.get('/api/comic-list')
-            //         .then(response => {
-            //             this.comics = response.data
-            //         })
-            //         .catch(error => {
-            //             console.log('fetching books error')
-            //         });
-            // }
         },
         mounted() {
-            // this.fetchBaseBookData();
         }
     }
 </script>

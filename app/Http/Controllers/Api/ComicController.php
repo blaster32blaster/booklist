@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\CacheService;
 use App\Services\ComicService;
 use Illuminate\Http\Request;
 
@@ -18,9 +19,17 @@ class ComicController extends Controller
      */
     private $comicService;
 
-    public function __construct(ComicService $cs)
+    /**
+     * a cache service instance
+     *
+     * @var CacheService $cacheService
+     */
+    private $cacheService;
+
+    public function __construct(ComicService $cs, CacheService $cService)
     {
         $this->comicService = $cs;
+        $this->cacheService = $cService;
     }
 
     /**
@@ -30,7 +39,17 @@ class ComicController extends Controller
      */
     public function index()
     {
-        return $this->comicService->index();
+        $cache = $this->cacheService->returnCacheData();
+
+        if (!empty($cache)) {
+            return response($cache);
+        }
+
+        $response = $this->comicService->index();
+
+        $this->cacheService->cacheResponseData($response);
+
+        return $response;
     }
 
     /**

@@ -16,7 +16,7 @@ class ComicService
     /**
      * the endpoint to hit
      *
-     * @var [type]
+     * @var string $endpoint
      */
     private $endpoint;
 
@@ -34,13 +34,21 @@ class ComicService
      */
     private $hashedKey;
 
-    public function __construct()
+    /**
+     * a request service instance
+     *
+     * @var RequestService $requestService
+     */
+    private $requestService;
+
+    public function __construct(RequestService $rService)
     {
         $this->endpoint = 'comics';
         $this->ts = Carbon::now()->timestamp;
         $this->hashedKey = md5(
             $this->ts . config('booklist.marvel_private') . config('booklist.marvel_public')
         );
+        $this->requestService = $rService;
     }
 
     /**
@@ -51,23 +59,15 @@ class ComicService
     public function index() : Response
     {
         try {
-            $cache = $this->returnCacheData();
+            $response = $this->requestService->fetch(
+                config('booklist.marvel_base_url') . $this->endpoint,
+                config('booklist.marvel_public'),
+                $this->ts,
+                $this->hashedKey
+            );
 
-            if (!empty($cache)) {
-                return response($cache);
-            }
-
-            $response = Http::get(
-                config('booklist.marvel_base_url') . $this->endpoint, [
-                    'apikey' => config('booklist.marvel_public'),
-                    'ts' => $this->ts,
-                    'hash' => $this->hashedKey
-                    ]
-                );
-            $this->cacheResponseData($response);
             return response($response['data']['results']);
-        } catch (CachingException $e) {
-            logger()->error('Comic Service Caching Exception');
+
         } catch (RequestException $e) {
             logger()->error('Comic Service Request Exception', [
                 'marvel_exception' => $e->getMessage(),
@@ -80,51 +80,5 @@ class ComicService
             ]);
         }
         return response('comic fetch error', 400);
-    }
-
-    /**
-     * cache response data
-     *
-     * @param Object $response
-     * @return void
-     */
-    private function cacheResponseData($response) : void
-    {
-        try {
-            if (Cache::has('comic-list')) {
-                Cache::forget(('comic-list'));
-            }
-            Cache::put('comic-list', $response['data']['results'], 240);
-        } catch (CacheException $e) {
-            logger()->error('Comic Service Cache Storing Exception');
-        } catch (Exception $e) {
-            logger()->error('Comic Service Cache Storing General Exception', [
-                'cache_exception' => $e->getMessage(),
-                'stack' => $e->getTraceAsString()
-            ]);
-        }
-    }
-
-    /**
-     * return data from the cache
-     *
-     * @return array
-     */
-    private function returnCacheData() : array
-    {
-        try {
-            if (Cache::has('comic-list')) {
-                logger()->info('fetching comic list from cache');
-                return Cache::get('comic-list');
-            }
-        } catch (CacheException $e) {
-            logger()->error('Comic Service Cache Fetch Exception');
-        } catch (Exception $e) {
-            logger()->error('Comic Service Cache Fetch General Exception', [
-                'cache_exception' => $e->getMessage(),
-                'stack' => $e->getTraceAsString()
-            ]);
-        }
-        return [];
     }
 }

@@ -1953,6 +1953,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1966,6 +1967,10 @@ __webpack_require__.r(__webpack_exports__);
         return {};
       },
       type: Object
+    },
+    canadd: {
+      "default": false,
+      type: Boolean
     }
   },
   data: function data() {
@@ -1977,19 +1982,12 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     getComicDetails: function getComicDetails() {
       this.$modal.show('' + this.comic.id + '' + '-modal');
-    } // fetchBaseBookData () {
-    //     axios.get('/api/comic-list')
-    //         .then(response => {
-    //             this.comics = response.data
-    //         })
-    //         .catch(error => {
-    //             console.log('fetching books error')
-    //         });
-    // }
-
+    },
+    itemAdded: function itemAdded() {
+      this.$emit('itemAdded');
+    }
   },
-  mounted: function mounted() {// this.fetchBaseBookData();
-  }
+  mounted: function mounted() {}
 });
 
 /***/ }),
@@ -2053,6 +2051,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -2064,23 +2063,21 @@ __webpack_require__.r(__webpack_exports__);
         return {};
       },
       type: Object
+    },
+    canadd: {
+      "default": false,
+      type: Boolean
     }
   },
   data: function data() {
     return {};
   },
-  methods: {// fetchBaseBookData () {
-    //     axios.get('/api/comic-list')
-    //         .then(response => {
-    //             this.comics = response.data
-    //         })
-    //         .catch(error => {
-    //             console.log('fetching books error')
-    //         });
-    // }
+  methods: {
+    itemAdded: function itemAdded() {
+      this.$emit('itemAdded');
+    }
   },
-  mounted: function mounted() {// this.fetchBaseBookData();
-  }
+  mounted: function mounted() {}
 });
 
 /***/ }),
@@ -2117,6 +2114,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     comic: {
@@ -2124,31 +2125,45 @@ __webpack_require__.r(__webpack_exports__);
         return {};
       },
       type: Object
+    },
+    canadd: {
+      "default": false,
+      type: Boolean
     }
   },
   data: function data() {
-    return {};
+    return {
+      selectedComics: this.$store.state.comics.comics
+    };
   },
   methods: {
-    // fetchBaseBookData () {
-    //     axios.get('/api/comic-list')
-    //         .then(response => {
-    //             this.comics = response.data
-    //         })
-    //         .catch(error => {
-    //             console.log('fetching books error')
-    //         });
-    // }
-    updateGlobalState: function updateGlobalState(key, value) {
+    addComicToList: function addComicToList() {
+      if (!this.selectedComics.includes(this.comic)) {
+        this.addToGlobalState('comics', this.comic);
+        this.$emit('itemAdded');
+      }
+    },
+    removeComicFromList: function removeComicFromList() {
+      if (this.selectedComics.includes(this.comic)) {
+        this.removeFromGlobalState('comics', this.comic);
+      }
+    },
+    addToGlobalState: function addToGlobalState(key, value) {
       this.$store.commit({
-        type: 'comics/update',
+        type: 'comics/addItem',
+        item: key,
+        value: value
+      });
+    },
+    removeFromGlobalState: function removeFromGlobalState(key, value) {
+      this.$store.commit({
+        type: 'comics/removeItem',
         item: key,
         value: value
       });
     }
   },
-  mounted: function mounted() {// this.fetchBaseBookData();
-  }
+  mounted: function mounted() {}
 });
 
 /***/ }),
@@ -2202,21 +2217,43 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
     comic: _Comic__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
-  props: {
-    num_records: {
-      "default": 0,
-      type: Number
-    }
-  },
+  props: {},
   data: function data() {
     return {
       messages: [],
-      comics: []
+      selectedComics: [],
+      comics: [],
+      myList: false,
+      sort: 'asc'
     };
   },
   methods: {
@@ -2228,10 +2265,39 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         console.log('fetching books error');
       });
+    },
+    canAdd: function canAdd(comic) {
+      return !this.$store.state.comics.comics.includes(comic);
+    },
+    switchToMyList: function switchToMyList() {
+      this.myList = true;
+      this.updateGlobalState('mainList', this.comics);
+      this.comics = this.$store.state.comics.comics;
+    },
+    switchToMainList: function switchToMainList() {
+      this.myList = false;
+      this.comics = this.$store.state.comics.mainList;
+    },
+    updateGlobalState: function updateGlobalState(key, value) {
+      this.$store.commit({
+        type: 'comics/update',
+        item: key,
+        value: value
+      });
+    },
+    sortList: function sortList() {
+      this.comics = _.orderBy(this.comics, 'title', this.sort);
+
+      if (this.sort === 'desc') {
+        this.sort = 'asc';
+      } else {
+        this.sort = 'desc';
+      }
     }
   },
   mounted: function mounted() {
     this.fetchBaseBookData();
+    this.selectedComics = this.$store.state.comics;
   }
 });
 
@@ -37859,9 +37925,9 @@ var render = function() {
               },
               [
                 _vm._v(
-                  "\n                    " +
+                  "\n                " +
                     _vm._s(_vm.comic.title) +
-                    "\n                "
+                    "\n            "
                 )
               ]
             ),
@@ -37893,7 +37959,12 @@ var render = function() {
                 staticClass: "card-footer list-actions-wrapper",
                 attrs: { id: "list-" + _vm.comic.id + "-footer" }
               },
-              [_c("itemActions", { attrs: { comic: _vm.comic } })],
+              [
+                _c("itemActions", {
+                  attrs: { comic: _vm.comic, canadd: _vm.canadd },
+                  on: { itemAdded: _vm.itemAdded }
+                })
+              ],
               1
             )
           ]
@@ -37909,7 +37980,12 @@ var render = function() {
               adaptive: true
             }
           },
-          [_c("comicDetails", { attrs: { comic: _vm.comic } })],
+          [
+            _c("comicDetails", {
+              attrs: { comic: _vm.comic, canadd: _vm.canadd },
+              on: { itemAdded: _vm.itemAdded }
+            })
+          ],
           1
         )
       ],
@@ -38030,7 +38106,7 @@ var render = function() {
                   _vm._v(
                     "\n                        Price :  $" +
                       _vm._s(_vm.comic.prices[0].price) +
-                      "\n                        "
+                      "\n                    "
                   )
                 ]
               )
@@ -38042,7 +38118,12 @@ var render = function() {
                 staticClass: "card-footer comic-details-footer",
                 attrs: { id: "detail-" + _vm.comic.id + "-footer" }
               },
-              [_c("itemActions", { attrs: { comic: _vm.comic } })],
+              [
+                _c("itemActions", {
+                  attrs: { comic: _vm.comic, canadd: _vm.canadd },
+                  on: { itemAdded: _vm.itemAdded }
+                })
+              ],
               1
             )
           ]
@@ -38086,8 +38167,17 @@ var render = function() {
             _c(
               "button",
               {
+                directives: [
+                  {
+                    name: "show",
+                    rawName: "v-show",
+                    value: _vm.canadd,
+                    expression: "canadd"
+                  }
+                ],
                 staticClass: "btn btn-primary btn-add",
-                attrs: { type: "button" }
+                attrs: { type: "button" },
+                on: { click: _vm.addComicToList }
               },
               [
                 _vm._v(
@@ -38099,8 +38189,17 @@ var render = function() {
             _c(
               "button",
               {
+                directives: [
+                  {
+                    name: "show",
+                    rawName: "v-show",
+                    value: !_vm.canadd,
+                    expression: "!canadd"
+                  }
+                ],
                 staticClass: "btn btn-primary btn-remove",
-                attrs: { type: "button" }
+                attrs: { type: "button" },
+                on: { click: _vm.removeComicFromList }
               },
               [
                 _vm._v(
@@ -38140,7 +38239,75 @@ var render = function() {
     _c("div", { staticClass: "row justify-content-center" }, [
       _c("div", { staticClass: "col-md-12" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(0),
+          _c("div", { staticClass: "card-header comic-list-header" }, [
+            _c("div", [
+              _vm._v(
+                "\n                        Available Comics\n                    "
+              )
+            ]),
+            _vm._v(" "),
+            _c("div"),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary",
+                attrs: { type: "button" },
+                on: { click: _vm.sortList }
+              },
+              [
+                _vm._v(
+                  "\n                            Sort By Title\n                        "
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c("div", [
+              _c(
+                "button",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: !_vm.myList,
+                      expression: "!myList"
+                    }
+                  ],
+                  staticClass: "btn btn-primary",
+                  attrs: { type: "button" },
+                  on: { click: _vm.switchToMyList }
+                },
+                [
+                  _vm._v(
+                    "\n                            Manage My List\n                        "
+                  )
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.myList,
+                      expression: "myList"
+                    }
+                  ],
+                  staticClass: "btn btn-primary",
+                  attrs: { type: "button" },
+                  on: { click: _vm.switchToMainList }
+                },
+                [
+                  _vm._v(
+                    "\n                            Back to Main List\n                        "
+                  )
+                ]
+              )
+            ])
+          ]),
           _vm._v(" "),
           _c("div", { staticClass: "card-body" }, [
             _c(
@@ -38150,7 +38317,7 @@ var render = function() {
                 return _c("comic", {
                   key: index,
                   staticClass: "comic-wrapper",
-                  attrs: { comic: comic }
+                  attrs: { comic: comic, canadd: _vm.canAdd(comic) }
                 })
               }),
               1
@@ -38166,28 +38333,7 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-header comic-list-header" }, [
-      _c("div", [
-        _vm._v(
-          "\n                        Available Comics\n                    "
-        )
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c(
-          "button",
-          { staticClass: "btn btn-primary", attrs: { type: "button" } },
-          [_vm._v("Manage My List")]
-        )
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -51664,9 +51810,10 @@ Vue.use(vue_js_modal__WEBPACK_IMPORTED_MODULE_1___default.a, {
     height: 'auto'
   }
 });
-var app = new Vue({
-  el: '#app'
-}, _store__WEBPACK_IMPORTED_MODULE_0__["default"]);
+new Vue({
+  el: '#app',
+  store: _store__WEBPACK_IMPORTED_MODULE_0__["default"]
+});
 
 /***/ }),
 
@@ -52029,11 +52176,18 @@ var debug = "development" !== 'production';
 __webpack_require__.r(__webpack_exports__);
 var state = {
   comics: [],
-  loading: false
+  loading: false,
+  mainList: []
 };
 var mutations = {
   update: function update(state, payload) {
     state[payload.item] = payload.value;
+  },
+  addItem: function addItem(state, payload) {
+    state.comics.push(payload.value);
+  },
+  removeItem: function removeItem(state, payload) {
+    state.comics.splice(state.comics.indexOf(payload.value), 1);
   }
 };
 var actions = {};

@@ -6,12 +6,16 @@
                     <button
                         type="button"
                         class="btn btn-primary btn-add"
+                        @click="addComicToList"
+                        v-show="canadd"
                     >
                         Add to comic list
                     </button>
                     <button
                         type="button"
                         class="btn btn-primary btn-remove"
+                        @click="removeComicFromList"
+                        v-show="!canadd"
                     >
                         Remove from comic list
                     </button>
@@ -27,33 +31,46 @@
             comic: {
                 default: function () { return {} },
                 type: Object
+            },
+            canadd: {
+                default: false,
+                type: Boolean
             }
         },
         data() {
             return {
-
+                selectedComics: this.$store.state.comics.comics
             }
         },
         methods: {
-            // fetchBaseBookData () {
-            //     axios.get('/api/comic-list')
-            //         .then(response => {
-            //             this.comics = response.data
-            //         })
-            //         .catch(error => {
-            //             console.log('fetching books error')
-            //         });
-            // }
-            updateGlobalState (key, value) {
+            addComicToList () {
+                if (!this.selectedComics.includes(this.comic)) {
+                    this.addToGlobalState('comics', this.comic);
+                    this.$emit('itemAdded')
+                }
+
+            },
+            removeComicFromList () {
+                if (this.selectedComics.includes(this.comic)) {
+                    this.removeFromGlobalState('comics', this.comic);
+                }
+            },
+            addToGlobalState (key, value) {
                 this.$store.commit({
-                    type: 'comics/update',
+                    type: 'comics/addItem',
                     item: key,
                     value: value
                 })
             },
+            removeFromGlobalState (key, value) {
+                this.$store.commit({
+                    type: 'comics/removeItem',
+                    item: key,
+                    value: value
+                })
+            }
         },
         mounted() {
-            // this.fetchBaseBookData();
         }
     }
 </script>

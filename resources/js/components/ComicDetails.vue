@@ -29,7 +29,6 @@
                         </p>
                         <p v-show="comic.prices && comic.prices.length > 0">
                             Price :  ${{ comic.prices[0].price }}
-                            <!-- {{ comic[0].urls.url }} -->
                         </p>
                     </div>
                     <div
@@ -38,6 +37,8 @@
                     >
                         <itemActions
                             :comic="comic"
+                            :canadd="canadd"
+                            @itemAdded="itemAdded"
                         >
                         </itemActions>
                     </div>
@@ -57,6 +58,10 @@
             comic: {
                 default: function () { return {} },
                 type: Object
+            },
+            canadd: {
+                default: false,
+                type: Boolean
             }
         },
         data() {
@@ -65,18 +70,11 @@
             }
         },
         methods: {
-            // fetchBaseBookData () {
-            //     axios.get('/api/comic-list')
-            //         .then(response => {
-            //             this.comics = response.data
-            //         })
-            //         .catch(error => {
-            //             console.log('fetching books error')
-            //         });
-            // }
+            itemAdded () {
+                this.$emit('itemAdded')
+            }
         },
         mounted() {
-            // this.fetchBaseBookData();
         }
     }
 </script>
