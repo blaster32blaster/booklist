@@ -49,7 +49,7 @@ class ComicController extends Controller
 
         $this->cacheService->cacheResponseData($response);
 
-        return $response;
+        return response($response);
     }
 
     /**

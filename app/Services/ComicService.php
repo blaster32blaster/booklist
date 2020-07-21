@@ -54,9 +54,9 @@ class ComicService
     /**
      * index method that handles returning comics data
      *
-     * @return Response
+     * @return array
      */
-    public function index() : Response
+    public function index() : array
     {
         try {
             $response = $this->requestService->fetch(
@@ -66,7 +66,8 @@ class ComicService
                 $this->hashedKey
             );
 
-            return response($response['data']['results']);
+
+            return $response['data']['results'];
 
         } catch (RequestException $e) {
             logger()->error('Comic Service Request Exception', [
@@ -79,6 +80,6 @@ class ComicService
                 'stack' => $e->getTraceAsString()
             ]);
         }
-        return response('comic fetch error', 400);
+        return response([], 400);
     }
 }
